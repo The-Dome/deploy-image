@@ -1,0 +1,26 @@
+{
+    "variables": {
+        "docker_repo": ""
+    },
+    "builders": [{
+        "type": "docker",
+        "image": "debian:stretch-slim",
+        "commit": true,
+        "changes": [
+            "WORKDIR /home/deploy",
+            "ENTRYPOINT [\"sh\"]"
+        ]
+    }],
+
+    "provisioners": [{
+        "type": "ansible",
+        "user": "root",
+        "playbook_file": "provision.yml"
+    }],
+
+    "post-processors": [[ {
+        "type": "docker-tag",
+        "repository": "{{ user `docker_repo` | lower }}/deploy",
+        "tag": "latest"
+    } ]]
+}
