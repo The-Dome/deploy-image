@@ -16,17 +16,17 @@
     - name: Install dependencies
       become: true
       apt:
-        name: "{{ item }}"
+        name: [
+                "apt-transport-https",
+                "ca-certificates",
+                "curl",
+                "gnupg2",
+                "software-properties-common",
+                "python-pip",
+                "unzip"
+              ]
         state: present
         install_recommends: false
-      with_items:
-          - "apt-transport-https"
-          - "ca-certificates"
-          - "curl"
-          - "gnupg2"
-          - "software-properties-common"
-          - "python-pip"
-          - "unzip"
 
     - name: Install Git
       become: true
@@ -36,9 +36,10 @@
 
     - name: Install Ansible
       become: true
-      apt:
-        name: ansible
-        state: present
+      unarchive:
+        src: https://releases.ansible.com/ansible/ansible-2.8.0rc3.tar.gz
+        dest: /usr/local/bin
+        remote_src: yes
 
     - name: Install Packer
       become: true
@@ -73,7 +74,3 @@
       apt:
         name: docker-ce
         state: present
-
-    - name: Install Docker-Compose
-      pip:
-        name: docker-compose

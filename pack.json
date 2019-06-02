@@ -1,14 +1,16 @@
 {
     "variables": {
-        "docker_repo": ""
+        "docker_repo": "{{ env `docker_repo` }}"
     },
     "builders": [{
         "type": "docker",
         "image": "debian:stretch-slim",
         "commit": true,
         "changes": [
+            "USER deploy",
             "WORKDIR /home/deploy",
-            "ENTRYPOINT [\"sh\"]"
+            "ENTRYPOINT [\"/bin/sh\", \"-c\"]",
+            "CMD [\"packer build pack.json\"]"
         ]
     }],
 
