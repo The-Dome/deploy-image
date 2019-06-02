@@ -34,13 +34,6 @@
         name: git
         state: present
 
-    - name: Install Ansible
-      become: true
-      unarchive:
-        src: https://releases.ansible.com/ansible/ansible-2.8.0rc3.tar.gz
-        dest: /usr/local/bin
-        remote_src: yes
-
     - name: Install Packer
       become: true
       unarchive:
@@ -54,6 +47,26 @@
           src: https://releases.hashicorp.com/terraform/0.11.13/terraform_0.11.13_linux_amd64.zip
           dest: /usr/local/bin
           remote_src: yes
+
+    - name: Install the gpg key for Ansible
+      become: true
+      apt_key:
+        keyserver: keyserver.ubuntu.com
+        id: 93C4A3FD7BB9C367
+        state: present
+
+    - name: Install the Ansible repos
+      become: true
+      apt_repository:
+        repo: "deb http://ppa.launchpad.net/ansible/ansible/ubuntu trusty main"
+        state: present
+        update_cache: yes
+
+    - name: Install Ansible
+      become: true
+      apt:
+        name: ansible
+        state: present
 
     - name: Install the gpg key for Docker CE
       become: true
