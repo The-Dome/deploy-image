@@ -8,6 +8,7 @@ script:
 - |
   docker run -it -v /var/run/docker.sock:/var/run/docker.sock \
                  --group-add $(getent group docker | cut -d: -f3) \
-                 -v $(pwd):/home/deploy \
+                 -v $(pwd):/home/deploy/src \
+                 -w /home/deploy/src \
                  supastuff/deploy:latest \
-                 packer build pack.json
+                 "packer build pack.json"
