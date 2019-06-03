@@ -8,6 +8,8 @@ script:
 - |
   docker run -it -v /var/run/docker.sock:/var/run/docker.sock \
                  --group-add $(getent group docker | cut -d: -f3) \
+                 -e docker_user \
+                 -e docker_pass \
                  -v $(pwd):/home/deploy/src \
                  -w /home/deploy/src \
                  supastuff/deploy:latest \
