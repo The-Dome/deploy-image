@@ -1,0 +1,15 @@
+services:
+  - docker
+
+before_install:
+  - docker pull supastuff/deploy:latest
+  - |
+    docker run -it -v /var/run/docker.sock:/var/run/docker.sock \
+                   --group-add $(getent group docker | cut -d: -f3) \
+                   -v $(pwd):/home/deploy/src \
+                   supastuff/deploy:latest
+
+script:
+  - cd src
+  - packer build pack.json
+  - exit
