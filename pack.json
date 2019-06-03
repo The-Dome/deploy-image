@@ -1,6 +1,7 @@
 {
     "variables": {
-        "docker_repo": "{{ env `docker_repo` }}"
+        "docker_user": "{{ env `docker_user` }}",
+        "docker_pass": "{{ env `docker_pass` }}"
     },
     "builders": [{
         "type": "docker",
@@ -24,18 +25,28 @@
         [
             {
                 "type": "docker-tag",
-                "repository": "{{ user `docker_repo` | lower }}/deploy",
-                "tag": "{{ isotime "06.01"}}"
+                "repository": "{{ user `docker_user` | lower }}/deploy",
+                "tag": "{{ isotime \"06.01\" }}"
             },
-            "docker-push"
+            {
+                "type": "docker-push",
+                "login": "true",
+                "login_username": "{{ user `docker_user` | lower }}",
+                "login_password": "{{ user `docker_pass` }}"
+            }
         ],
         [
             {
                 "type": "docker-tag",
-                "repository": "{{ user `docker_repo` | lower }}/deploy",
+                "repository": "{{ user `docker_user` | lower }}/deploy",
                 "tag": "latest"
             },
-            "docker-push"
+            {
+                "type": "docker-push",
+                "login": "true",
+                "login_username": "{{ user `docker_user` | lower }}",
+                "login_password": "{{ user `docker_pass` }}"
+            }
         ]
     ]
 }
