@@ -10,7 +10,7 @@
             "USER deploy",
             "WORKDIR /home/deploy",
             "ENTRYPOINT [\"/bin/sh\", \"-c\"]",
-            "CMD [\"packer build pack.json\"]"
+            "CMD [\"bash\"]"
         ]
     }],
 
@@ -20,9 +20,22 @@
         "playbook_file": "provision.yml"
     }],
 
-    "post-processors": [[ {
-        "type": "docker-tag",
-        "repository": "{{ user `docker_repo` | lower }}/deploy",
-        "tag": "latest"
-    } ]]
+    "post-processors": [
+        [
+            {
+                "type": "docker-tag",
+                "repository": "{{ user `docker_repo` | lower }}/deploy",
+                "tag": "{{ isotime "06.01"}}"
+            },
+            "docker-push"
+        ],
+        [
+            {
+                "type": "docker-tag",
+                "repository": "{{ user `docker_repo` | lower }}/deploy",
+                "tag": "latest"
+            },
+            "docker-push"
+        ]
+    ]
 }
