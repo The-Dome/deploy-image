@@ -1,0 +1,89 @@
+---
+- name: Provision Python
+  hosts: all
+  gather_facts: no
+  tasks:
+    - name: Boostrap python
+      raw: test -e /usr/bin/python || (apt-get -y update && apt-get install -y python-minimal)
+
+- hosts: all
+
+  tasks:
+    - name: Add the user 'deploy'
+      user:
+          name: deploy
+
+    - name: Install dependencies
+      become: true
+      apt:
+        name: [
+                "apt-transport-https",
+                "ca-certificates",
+                "curl",
+                "gnupg2",
+                "software-properties-common",
+                "python-pip",
+                "unzip"
+              ]
+        state: present
+        install_recommends: false
+
+    - name: Install Git
+      become: true
+      apt:
+        name: git
+        state: present
+
+    - name: Install Packer
+      become: true
+      unarchive:
+          src: https://releases.hashicorp.com/packer/1.4.0/packer_1.4.0_linux_amd64.zip
+          dest: /usr/local/bin
+          remote_src: yes
+
+    - name: Install Terraform
+      become: true
+      unarchive:
+          src: https://releases.hashicorp.com/terraform/0.11.13/terraform_0.11.13_linux_amd64.zip
+          dest: /usr/local/bin
+          remote_src: yes
+
+    - name: Install the gpg key for Ansible
+      become: true
+      apt_key:
+        keyserver: keyserver.ubuntu.com
+        id: 93C4A3FD7BB9C367
+        state: present
+
+    - name: Install the Ansible repos
+      become: true
+      apt_repository:
+        repo: "deb http://ppa.launchpad.net/ansible/ansible/ubuntu trusty main"
+        state: present
+        update_cache: yes
+
+    - name: Install Ansible
+      become: true
+      apt:
+        name: ansible
+        state: present
+
+    - name: Install the gpg key for Docker CE
+      become: true
+      apt_key:
+        url: "https://download.docker.com/linux/debian/gpg"
+        state: present
+        validate_certs: no
+
+    - name: Install the Docker repos
+      become: true
+      apt_repository:
+        repo: "deb [arch=amd64] https://download.docker.com/linux/debian {{ ansible_distribution_release }} stable"
+        state: present
+        update_cache: yes
+
+    - name: Install Docker
+      become: true
+      apt:
+        name: docker-ce
+        state: present

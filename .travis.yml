@@ -1,0 +1,31 @@
+services:
+    - docker
+
+before_install:
+    - docker pull supastuff/deploy:latest
+
+stages:
+    - name: verify
+      if: type = pull_request
+    - name: pack
+      if: type = push
+
+jobs:
+    include:
+        - stage: verify
+          script: |
+                  docker run -it -v $(pwd):/home/deploy/src \
+                                 -w /home/deploy/src \
+                                 supastuff/deploy:latest \
+                                 "packer validate pack.json && ansible-playbook provision.yml --check" \
+
+        - stage: pack
+          script: |
+                  docker run -it -v /var/run/docker.sock:/var/run/docker.sock \
+                                 --group-add $(getent group docker | cut -d: -f3) \
+                                 -e docker_user \
+                                 -e docker_pass \
+                                 -v $(pwd):/home/deploy/src \
+                                 -w /home/deploy/src \
+                                 supastuff/deploy:latest \
+                                 "packer build pack.json" \

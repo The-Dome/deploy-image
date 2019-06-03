@@ -1,0 +1,52 @@
+{
+    "variables": {
+        "docker_user": "{{ env `docker_user` }}",
+        "docker_pass": "{{ env `docker_pass` }}"
+    },
+    "builders": [{
+        "type": "docker",
+        "image": "debian:stretch-slim",
+        "commit": true,
+        "changes": [
+            "USER deploy",
+            "WORKDIR /home/deploy",
+            "ENTRYPOINT [\"/bin/sh\", \"-c\"]",
+            "CMD [\"bash\"]"
+        ]
+    }],
+
+    "provisioners": [{
+        "type": "ansible",
+        "user": "root",
+        "playbook_file": "provision.yml"
+    }],
+
+    "post-processors": [
+        [
+            {
+                "type": "docker-tag",
+                "repository": "{{ user `docker_user` | lower }}/deploy",
+                "tag": "{{ isotime \"06.01\" }}"
+            },
+            {
+                "type": "docker-push",
+                "login": "true",
+                "login_username": "{{ user `docker_user` | lower }}",
+                "login_password": "{{ user `docker_pass` }}"
+            }
+        ],
+        [
+            {
+                "type": "docker-tag",
+                "repository": "{{ user `docker_user` | lower }}/deploy",
+                "tag": "latest"
+            },
+            {
+                "type": "docker-push",
+                "login": "true",
+                "login_username": "{{ user `docker_user` | lower }}",
+                "login_password": "{{ user `docker_pass` }}"
+            }
+        ]
+    ]
+}
